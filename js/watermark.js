@@ -1,5 +1,6 @@
 /**
  * High-DPI Watermark Stamping Engine for Canvas
+ * Responsive & Prominent Layout (Landscape & Portrait adaptive)
  */
 class GeotagWatermark {
   constructor() {
@@ -19,32 +20,34 @@ class GeotagWatermark {
 
     const ctx = canvas.getContext('2d');
 
-    // 1. Draw main photo
+    // 1. Draw main photo frame
     ctx.drawImage(cameraCanvas, 0, 0);
 
-    // Dynamic scale factor based on image width (reference width 1920px)
-    const scale = canvas.width / 1920;
+    const isLandscape = canvas.width >= canvas.height;
+    // Scale factor relative to reference max dimension 1600px
+    const maxDim = Math.max(canvas.width, canvas.height);
+    const scale = maxDim / 1600;
 
     // Overlay Card Dimensions
-    const padding = 24 * scale;
-    const cardMarginBottom = 20 * scale;
-    const cardMarginLeft = 20 * scale;
-    const cardWidth = Math.min(canvas.width - (cardMarginLeft * 2), 1400 * scale);
-    const mapSize = 220 * scale;
+    const padding = Math.round(24 * scale);
+    const cardMarginBottom = Math.round(30 * scale);
+    const cardMarginLeft = Math.round(30 * scale);
+    
+    // Scale Map Thumbnail Size
+    const mapSize = Math.round(isLandscape ? 280 * scale : 240 * scale);
 
-    const cardX = cardMarginLeft;
-    // Calculate card height dynamically or fixed ~ 260px * scale
+    const cardWidth = Math.min(canvas.width - (cardMarginLeft * 2), Math.round((isLandscape ? 1280 : 1000) * scale));
     const cardHeight = mapSize + (padding * 2);
+    const cardX = cardMarginLeft;
     const cardY = canvas.height - cardHeight - cardMarginBottom;
 
-    // 2. Draw Dark Semi-Transparent Card Background
+    // 2. Draw Dark Semi-Transparent Card Background (Glassmorphic look)
     ctx.save();
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-    ctx.shadowBlur = 15 * scale;
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.68)';
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+    ctx.shadowBlur = Math.round(20 * scale);
     
-    // Rounded Card Corners
-    const cornerRadius = 16 * scale;
+    const cornerRadius = Math.round(20 * scale);
     ctx.beginPath();
     ctx.moveTo(cardX + cornerRadius, cardY);
     ctx.lineTo(cardX + cardWidth - cornerRadius, cardY);
@@ -57,6 +60,11 @@ class GeotagWatermark {
     ctx.quadraticCurveTo(cardX, cardY, cardX + cornerRadius, cardY);
     ctx.closePath();
     ctx.fill();
+
+    // Subtle white border stroke
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+    ctx.lineWidth = Math.round(2 * scale);
+    ctx.stroke();
     ctx.restore();
 
     // 3. Draw Mini Map Image on Left
@@ -64,12 +72,11 @@ class GeotagWatermark {
     const mapY = cardY + padding;
 
     try {
-      const mapCanvas = await this.renderMapCanvas(locationData.lat, locationData.lng, mapSize, mapSize);
+      const mapCanvas = await this.renderMapCanvas(locationData.lat, locationData.lng, mapSize, mapSize, scale);
       
-      // Draw map rounded border frame
       ctx.save();
       ctx.beginPath();
-      const mapRadius = 12 * scale;
+      const mapRadius = Math.round(14 * scale);
       ctx.moveTo(mapX + mapRadius, mapY);
       ctx.lineTo(mapX + mapSize - mapRadius, mapY);
       ctx.quadraticCurveTo(mapX + mapSize, mapY, mapX + mapSize, mapY + mapRadius);
@@ -85,65 +92,86 @@ class GeotagWatermark {
       ctx.drawImage(mapCanvas, mapX, mapY, mapSize, mapSize);
       ctx.restore();
 
-      // Border line around map
+      // Border frame around map
       ctx.save();
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-      ctx.lineWidth = 2 * scale;
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+      ctx.lineWidth = Math.round(2.5 * scale);
       ctx.beginPath();
-      ctx.roundRect(mapX, mapY, mapSize, mapSize, 12 * scale);
+      ctx.roundRect(mapX, mapY, mapSize, mapSize, Math.round(14 * scale));
       ctx.stroke();
       ctx.restore();
     } catch (e) {
       console.warn('Could not draw map on canvas:', e);
-      // Fallback gray box
-      ctx.fillStyle = '#333333';
+      ctx.fillStyle = '#262626';
       ctx.fillRect(mapX, mapY, mapSize, mapSize);
     }
 
-    // 4. Draw Text Information on Right Side of Map
-    const textX = mapX + mapSize + (20 * scale);
-    let textY = mapY + (32 * scale);
-    const maxTextWidth = cardWidth - (mapSize + (padding * 2) + (20 * scale));
+    // 4. Draw GPS Map Camera Logo Badge on Top Right of Card
+    ctx.save();
+    const badgeText = '📷 GPS Map Camera';
+    ctx.font = `600 ${Math.round(20 * scale)}px "Roboto", sans-serif`;
+    const badgeWidth = ctx.measureText(badgeText).width + (24 * scale);
+    const badgeHeight = 32 * scale;
+    const badgeX = cardX + cardWidth - badgeWidth - padding;
+    const badgeY = cardY + padding;
+
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+    ctx.lineWidth = 1.5 * scale;
+    ctx.beginPath();
+    ctx.roundRect(badgeX, badgeY, badgeWidth, badgeHeight, 8 * scale);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#FFFFFF';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(badgeText, badgeX + (12 * scale), badgeY + (badgeHeight / 2));
+    ctx.restore();
+
+    // 5. Draw Text Information on Right Side of Map
+    const textX = mapX + mapSize + Math.round(24 * scale);
+    let textY = mapY + Math.round(14 * scale);
+    const maxTextWidth = cardWidth - (mapSize + (padding * 2) + Math.round(24 * scale));
 
     ctx.fillStyle = '#FFFFFF';
     ctx.textBaseline = 'top';
 
-    // A. Header Title with Flag Emoji
-    ctx.font = `bold ${Math.round(36 * scale)}px "Roboto", "Segoe UI", sans-serif`;
+    // A. Header Title with Flag Emoji (e.g., Central Jakarta,Jakarta,Indonesia 🇮🇩)
+    ctx.font = `bold ${Math.round(38 * scale)}px "Roboto", "Segoe UI", sans-serif`;
     const headerText = locationData.header || 'Location Unknown';
     ctx.fillText(this.truncateText(ctx, headerText, maxTextWidth), textX, textY);
-    textY += 44 * scale;
+    textY += Math.round(48 * scale);
 
     // B. Address Line 1
-    ctx.font = `${Math.round(24 * scale)}px "Roboto", "Segoe UI", sans-serif`;
-    ctx.fillStyle = '#E0E0E0';
+    ctx.font = `${Math.round(28 * scale)}px "Roboto", "Segoe UI", sans-serif`;
+    ctx.fillStyle = '#E8E8E8';
     if (locationData.addressLine1) {
       ctx.fillText(this.truncateText(ctx, locationData.addressLine1, maxTextWidth), textX, textY);
-      textY += 32 * scale;
+      textY += Math.round(36 * scale);
     }
 
     // C. Address Line 2
     if (locationData.addressLine2) {
       ctx.fillText(this.truncateText(ctx, locationData.addressLine2, maxTextWidth), textX, textY);
-      textY += 32 * scale;
+      textY += Math.round(36 * scale);
     }
 
     // D. Coordinates (Lat, Long)
-    ctx.font = `500 ${Math.round(26 * scale)}px "Roboto", "Segoe UI", sans-serif`;
+    ctx.font = `600 ${Math.round(28 * scale)}px "Roboto", "Segoe UI", sans-serif`;
     ctx.fillStyle = '#FFFFFF';
     const coordsText = `${locationData.latStr}, ${locationData.lngStr}`;
     ctx.fillText(coordsText, textX, textY);
-    textY += 34 * scale;
+    textY += Math.round(36 * scale);
 
     // E. Timestamp
-    ctx.font = `${Math.round(24 * scale)}px "Roboto", "Segoe UI", sans-serif`;
+    ctx.font = `${Math.round(26 * scale)}px "Roboto", "Segoe UI", sans-serif`;
     ctx.fillStyle = '#E0E0E0';
     ctx.fillText(locationData.timestampStr, textX, textY);
-    textY += 32 * scale;
+    textY += Math.round(34 * scale);
 
     // F. Note
-    ctx.font = `italic ${Math.round(24 * scale)}px "Roboto", "Segoe UI", sans-serif`;
-    ctx.fillStyle = '#CCCCCC';
+    ctx.font = `italic ${Math.round(26 * scale)}px "Roboto", "Segoe UI", sans-serif`;
+    ctx.fillStyle = '#A8C7FA';
     const noteText = `Note : ${locationData.note}`;
     ctx.fillText(this.truncateText(ctx, noteText, maxTextWidth), textX, textY);
 
@@ -153,14 +181,13 @@ class GeotagWatermark {
   /**
    * Helper to fetch static map tiles and draw pin marker on canvas
    */
-  async renderMapCanvas(lat, lng, width, height) {
+  async renderMapCanvas(lat, lng, width, height, scale = 1) {
     const mapCanvas = document.createElement('canvas');
     mapCanvas.width = width;
     mapCanvas.height = height;
     const ctx = mapCanvas.getContext('2d');
 
     const zoom = 16;
-    // Calculate tile numbers for zoom level 16
     const n = Math.pow(2, zoom);
     const xExact = ((lng + 180) / 360) * n;
     const latRad = (lat * Math.PI) / 180;
@@ -172,7 +199,6 @@ class GeotagWatermark {
     const offsetX = (xExact - tileX) * 256;
     const offsetY = (yExact - tileY) * 256;
 
-    // Draw center tile and surrounding 8 tiles (3x3 grid)
     const centerX = width / 2;
     const centerY = height / 2;
 
@@ -182,7 +208,7 @@ class GeotagWatermark {
       for (let dy = -1; dy <= 1; dy++) {
         const tx = tileX + dx;
         const ty = tileY + dy;
-        const url = `https://a.tile.openstreetmap.org/${zoom}/${tx}/${ty}.png`;
+        const url = `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${zoom}/${ty}/${tx}`;
         
         const posX = centerX - offsetX + (dx * 256);
         const posY = centerY - offsetY + (dy * 256);
@@ -190,7 +216,6 @@ class GeotagWatermark {
         tilePromises.push(this.loadImage(url).then(img => {
           ctx.drawImage(img, posX, posY, 256, 256);
         }).catch(err => {
-          // If tile load fails, fill background
           ctx.fillStyle = '#E5E3DF';
           ctx.fillRect(posX, posY, 256, 256);
         }));
@@ -199,16 +224,17 @@ class GeotagWatermark {
 
     await Promise.all(tilePromises);
 
-    // Draw Blue View Cone & Red Location Marker Pin in center
+    // Draw Blue View Cone & Red Pin Marker
     const pinX = width / 2;
     const pinY = height / 2;
+    const pinScale = width / 220;
 
-    // Orientation Blue Cone
+    // Blue Orientation Cone
     ctx.save();
-    ctx.fillStyle = 'rgba(66, 133, 244, 0.35)';
+    ctx.fillStyle = 'rgba(66, 133, 244, 0.4)';
     ctx.beginPath();
     ctx.moveTo(pinX, pinY);
-    ctx.arc(pinX, pinY, 60, -Math.PI / 4 - Math.PI / 2, Math.PI / 4 - Math.PI / 2);
+    ctx.arc(pinX, pinY, 70 * pinScale, -Math.PI / 4 - Math.PI / 2, Math.PI / 4 - Math.PI / 2);
     ctx.closePath();
     ctx.fill();
     ctx.restore();
@@ -217,23 +243,23 @@ class GeotagWatermark {
     ctx.save();
     ctx.fillStyle = '#EA4335';
     ctx.strokeStyle = '#B31412';
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 2 * pinScale;
     ctx.beginPath();
-    ctx.arc(pinX, pinY - 15, 14, 0, Math.PI * 2);
+    ctx.arc(pinX, pinY - (18 * pinScale), 16 * pinScale, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
 
     // Inner White Dot
     ctx.fillStyle = '#FFFFFF';
     ctx.beginPath();
-    ctx.arc(pinX, pinY - 15, 5, 0, Math.PI * 2);
+    ctx.arc(pinX, pinY - (18 * pinScale), 6 * pinScale, 0, Math.PI * 2);
     ctx.fill();
 
     // Pin Point Triangle
     ctx.fillStyle = '#EA4335';
     ctx.beginPath();
-    ctx.moveTo(pinX - 10, pinY - 10);
-    ctx.lineTo(pinX + 10, pinY - 10);
+    ctx.moveTo(pinX - (12 * pinScale), pinY - (12 * pinScale));
+    ctx.lineTo(pinX + (12 * pinScale), pinY - (12 * pinScale));
     ctx.lineTo(pinX, pinY);
     ctx.closePath();
     ctx.fill();

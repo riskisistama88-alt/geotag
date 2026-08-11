@@ -28,7 +28,7 @@
 
   /* MD3 Shapes & Elevation */
   --md-sys-shape-corner-extra-large: 28px;
-  --md-sys-shape-corner-large: 16px;
+  --md-sys-shape-corner-large: 18px;
   --md-sys-shape-corner-medium: 12px;
   --md-sys-shape-corner-small: 8px;
   --md-sys-shape-corner-full: 9999px;
@@ -126,22 +126,22 @@ video#cameraVideo {
   align-items: center;
   justify-content: space-between;
   z-index: 10;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0) 100%);
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 100%);
 }
 
 .brand-title {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 1.1rem;
-  font-weight: 600;
+  font-size: 1.15rem;
+  font-weight: 700;
   color: #FFF;
   letter-spacing: 0.3px;
 }
 
 .brand-title .material-symbols-outlined {
   color: var(--md-sys-color-primary);
-  font-size: 24px;
+  font-size: 26px;
 }
 
 .top-actions {
@@ -150,15 +150,14 @@ video#cameraVideo {
   gap: 12px;
 }
 
-/* Icon Buttons (MD3 Standard Outlined Button) */
 .icon-btn {
   width: 44px;
   height: 44px;
   border-radius: var(--md-sys-shape-corner-full);
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.18);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   color: #FFF;
   display: flex;
   align-items: center;
@@ -168,7 +167,7 @@ video#cameraVideo {
 }
 
 .icon-btn:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.3);
   transform: scale(1.05);
 }
 
@@ -187,19 +186,19 @@ video#cameraVideo {
   align-items: center;
   gap: 6px;
   padding: 6px 14px;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(10px);
   border-radius: var(--md-sys-shape-corner-full);
-  font-size: 0.8rem;
-  font-weight: 500;
+  font-size: 0.85rem;
+  font-weight: 600;
   color: var(--md-sys-color-on-surface-variant);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   cursor: pointer;
 }
 
 .drive-status-badge.connected {
   color: #81C784;
-  border-color: rgba(129, 199, 132, 0.4);
+  border-color: rgba(129, 199, 132, 0.5);
 }
 
 .status-dot {
@@ -215,47 +214,50 @@ video#cameraVideo {
 }
 
 /* ==========================================================================
-   Real-Time Geotag Card Overlay (Exact Match with Reference Image)
+   Real-Time Geotag Card Overlay (Responsive & Prominent - Landscape/Portrait)
    ========================================================================== */
 
 .geotag-overlay-card {
   position: absolute;
   bottom: 120px;
-  left: 16px;
-  right: 16px;
-  max-width: 680px;
+  left: 20px;
+  right: 20px;
+  max-width: 860px;
   margin: 0 auto;
   z-index: 10;
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.68);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
   border-radius: var(--md-sys-shape-corner-large);
-  padding: 14px;
+  padding: 16px 20px;
   display: flex;
-  gap: 14px;
-  box-shadow: var(--md-elevation-3);
-  transition: all 0.3s ease;
+  gap: 18px;
+  box-shadow: var(--md-elevation-5);
+  transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+  align-items: center;
 }
 
+/* Larger Map Preview Box */
 .map-preview-box {
-  width: 110px;
-  height: 110px;
-  min-width: 110px;
+  width: 145px;
+  height: 145px;
+  min-width: 145px;
   border-radius: var(--md-sys-shape-corner-medium);
   overflow: hidden;
   position: relative;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: var(--md-elevation-1);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  box-shadow: var(--md-elevation-3);
+  background: #1e1e1e;
 }
 
 #leafletMapContainer {
   width: 100%;
   height: 100%;
-  background: #262626;
+  background: #1e1e1e;
 }
 
-/* Custom Marker Leaflet */
+/* Custom Pin Leaflet */
 .custom-map-pin {
   display: flex;
   align-items: center;
@@ -271,16 +273,16 @@ video#cameraVideo {
 
 .pin-icon {
   color: #EA4335;
-  font-size: 32px !important;
-  filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.6));
+  font-size: 38px !important;
+  filter: drop-shadow(0px 3px 6px rgba(0, 0, 0, 0.7));
 }
 
 .pin-cone {
   position: absolute;
-  top: -15px;
-  width: 40px;
-  height: 40px;
-  background: radial-gradient(circle, rgba(66, 133, 244, 0.4) 0%, rgba(66, 133, 244, 0) 70%);
+  top: -18px;
+  width: 50px;
+  height: 50px;
+  background: radial-gradient(circle, rgba(66, 133, 244, 0.45) 0%, rgba(66, 133, 244, 0) 70%);
   border-radius: 50%;
   pointer-events: none;
 }
@@ -289,59 +291,150 @@ video#cameraVideo {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 3px;
+  gap: 4px;
   color: #FFF;
   overflow: hidden;
   flex: 1;
 }
 
 .info-header {
-  font-size: 1rem;
+  font-size: 1.35rem;
   font-weight: 700;
-  line-height: 1.2;
-  color: #FFF;
+  line-height: 1.25;
+  color: #FFFFFF;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  letter-spacing: 0.2px;
+  text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.6);
 }
 
 .info-address {
-  font-size: 0.8rem;
+  font-size: 0.96rem;
   font-weight: 400;
-  color: #E0E0E0;
-  line-height: 1.25;
+  color: #E2E2E2;
+  line-height: 1.35;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.6);
 }
 
 .info-coords, .info-timestamp {
-  font-size: 0.78rem;
+  font-size: 0.92rem;
   font-weight: 400;
-  color: #E0E0E0;
-  line-height: 1.2;
+  color: #E2E2E2;
+  line-height: 1.3;
+  text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.6);
 }
 
 .info-coords {
-  font-weight: 500;
-  color: #FFF;
+  font-weight: 600;
+  color: #FFFFFF;
 }
 
 .info-note {
-  font-size: 0.78rem;
+  font-size: 0.92rem;
   font-style: italic;
   color: var(--md-sys-color-primary);
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   cursor: pointer;
+  text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.6);
 }
 
 .info-note .edit-icon {
-  font-size: 14px;
-  opacity: 0.8;
+  font-size: 16px;
+  opacity: 0.85;
+}
+
+/* Watermark GPS Map Camera Logo Badge on right side */
+.card-logo-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #FFF;
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  backdrop-filter: blur(8px);
+}
+
+.card-logo-badge .material-symbols-outlined {
+  font-size: 18px;
+  color: #FFB74D;
+}
+
+/* Landscape Mode Responsive Adjustments */
+@media (min-aspect-ratio: 1/1) or (orientation: landscape) {
+  .geotag-overlay-card {
+    bottom: 110px;
+    left: 24px;
+    right: 24px;
+    max-width: 960px;
+    padding: 18px 24px;
+    gap: 22px;
+  }
+
+  .map-preview-box {
+    width: 160px;
+    height: 160px;
+    min-width: 160px;
+  }
+
+  .info-header {
+    font-size: 1.5rem;
+  }
+
+  .info-address {
+    font-size: 1.05rem;
+  }
+
+  .info-coords, .info-timestamp, .info-note {
+    font-size: 1rem;
+  }
+}
+
+/* Mobile Portrait Tweaks */
+@media (max-width: 600px) and (orientation: portrait) {
+  .geotag-overlay-card {
+    bottom: 115px;
+    left: 12px;
+    right: 12px;
+    padding: 12px 14px;
+    gap: 12px;
+  }
+
+  .map-preview-box {
+    width: 115px;
+    height: 115px;
+    min-width: 115px;
+  }
+
+  .info-header {
+    font-size: 1.05rem;
+  }
+
+  .info-address {
+    font-size: 0.82rem;
+  }
+
+  .info-coords, .info-timestamp, .info-note {
+    font-size: 0.8rem;
+  }
+
+  .card-logo-badge {
+    display: none; /* Hide badge on very small screens to preserve text space */
+  }
 }
 
 /* ==========================================================================
@@ -358,14 +451,14 @@ video#cameraVideo {
   align-items: center;
   justify-content: space-around;
   z-index: 10;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0) 100%);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0) 100%);
 }
 
 .gallery-thumbnail-btn {
-  width: 52px;
-  height: 52px;
+  width: 54px;
+  height: 54px;
   border-radius: var(--md-sys-shape-corner-medium);
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.18);
   backdrop-filter: blur(10px);
   border: 2px solid rgba(255, 255, 255, 0.4);
   overflow: hidden;
@@ -408,8 +501,8 @@ video#cameraVideo {
 }
 
 .shutter-fab {
-  width: 80px;
-  height: 80px;
+  width: 82px;
+  height: 82px;
   border-radius: var(--md-sys-shape-corner-full);
   background: transparent;
   border: 4px solid #FFF;
@@ -436,7 +529,7 @@ video#cameraVideo {
   background: var(--md-sys-color-primary);
 }
 
-/* Flash Flash Screen Effect */
+/* Flash Screen Effect */
 .camera-flash-effect {
   position: absolute;
   top: 0;
@@ -464,8 +557,8 @@ video#cameraVideo {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(10px);
   z-index: 100;
   display: flex;
   align-items: center;
@@ -486,7 +579,7 @@ video#cameraVideo {
   color: var(--md-sys-color-on-surface);
   border-radius: var(--md-sys-shape-corner-extra-large);
   width: 100%;
-  max-width: 520px;
+  max-width: 540px;
   max-height: 85vh;
   overflow-y: auto;
   box-shadow: var(--md-elevation-5);
@@ -535,7 +628,7 @@ video#cameraVideo {
   gap: 12px;
 }
 
-/* MD3 Input Fields & Selects */
+/* MD3 Input Fields */
 .md3-text-field {
   display: flex;
   flex-direction: column;
@@ -664,10 +757,7 @@ video#cameraVideo {
   font-size: 0.75rem;
 }
 
-/* ==========================================================================
-   Gallery Modal Drawer
-   ========================================================================== */
-
+/* Gallery Modal Drawer */
 .gallery-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
@@ -770,34 +860,4 @@ video#cameraVideo {
 .toast-notification.show {
   transform: translateX(-50%) translateY(0);
   opacity: 1;
-}
-
-/* Responsive tweaks */
-@media (max-width: 600px) {
-  .geotag-overlay-card {
-    bottom: 110px;
-    left: 10px;
-    right: 10px;
-    padding: 10px;
-    gap: 10px;
-  }
-
-  .map-preview-box {
-    width: 90px;
-    height: 90px;
-    min-width: 90px;
-  }
-
-  .info-header {
-    font-size: 0.88rem;
-  }
-
-  .info-address, .info-coords, .info-timestamp, .info-note {
-    font-size: 0.72rem;
-  }
-
-  .shutter-fab {
-    width: 72px;
-    height: 72px;
-  }
 }

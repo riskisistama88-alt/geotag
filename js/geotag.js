@@ -43,8 +43,10 @@ class GeotagManager {
       doubleClickZoom: false
     });
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19
+    // Esri World Imagery Satellite Tile Layer
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 19,
+      attribution: 'Esri, Maxar, Earthstar Geographics'
     }).addTo(this.leafletMap);
 
     // Custom red pin marker
