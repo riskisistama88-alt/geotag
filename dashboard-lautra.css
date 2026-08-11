@@ -1,0 +1,410 @@
+/* ============================================================
+   DASHBOARD LAUTRA KOMPONEN 2 — STYLESHEET
+   Diadaptasi dari desain infografis "Dampak Program LAUTRA"
+   ============================================================ */
+
+:root {
+  /* --- Palet Warna Utama --- */
+  --navy-dark: #0b2e5c;      /* biru tua header & footer */
+  --navy-title: #14345f;     /* biru tua judul besar */
+  --blue-primary: #1f6fb2;   /* biru kartu "Pengunjung" */
+  --blue-bar: #1f5fa8;       /* biru bar chart (sebelum) */
+  --green-primary: #2e8b3d;  /* hijau kartu "Pendapatan Kotor" */
+  --green-bar: #2f9e44;      /* hijau bar chart (sesudah) */
+  --orange-primary: #d98e1e; /* oranye kartu "Pengeluaran" */
+  --purple-primary: #6a4fa0; /* ungu kartu "Kas Bersih" */
+
+  --bg-page: #f4f7fb;
+  --bg-card: #ffffff;
+  --bg-blue-soft: #dbeafd;
+  --bg-green-soft: #dcf3de;
+  --bg-orange-soft: #fbe6c4;
+  --bg-purple-soft: #e6def7;
+
+  --text-dark: #12233f;
+  --text-muted: #5b6b82;
+  --white: #ffffff;
+
+  /* --- Tipografi --- */
+  --font-display: "Poppins", "Segoe UI", sans-serif;
+  --font-body: "Inter", "Segoe UI", sans-serif;
+
+  /* --- Radius & Shadow --- */
+  --radius-lg: 20px;
+  --radius-md: 12px;
+  --radius-pill: 999px;
+  --shadow-card: 0 4px 14px rgba(18, 35, 63, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg-page);
+  color: var(--text-dark);
+  line-height: 1.5;
+}
+
+/* ============================================================
+   HEADER / BANNER
+   ============================================================ */
+.dashboard-header {
+  position: relative;
+  background: var(--white);
+  padding: 40px 60px 60px;
+  text-align: center;
+  overflow: hidden;
+}
+
+.dashboard-header::before,
+.dashboard-header::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 260px;
+  height: 160px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 0 0 60% 0;
+}
+
+.dashboard-header::before {
+  left: 0;
+  background-image: url("beach-left.jpg");
+  border-radius: 0 0 60% 0;
+}
+
+.dashboard-header::after {
+  right: 0;
+  background-image: url("beach-right.jpg");
+  border-radius: 0 0 0 60%;
+}
+
+.dashboard-header .wave-divider {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 24px;
+  background: var(--blue-primary);
+  clip-path: polygon(0 60%, 10% 40%, 25% 70%, 40% 30%, 55% 60%, 70% 35%, 85% 65%, 100% 45%, 100% 100%, 0 100%);
+}
+
+.dashboard-title {
+  font-family: var(--font-display);
+  font-size: 2.6rem;
+  font-weight: 800;
+  color: var(--navy-title);
+  letter-spacing: 0.5px;
+}
+
+.dashboard-subtitle {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--blue-primary);
+  margin-top: 8px;
+}
+
+.dashboard-period {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin-top: 10px;
+}
+
+/* ============================================================
+   KARTU RINGKASAN (4 KOLOM ATAS)
+   ============================================================ */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  padding: 30px 40px;
+}
+
+.summary-card {
+  background: var(--bg-card);
+  border: 2px solid transparent;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 24px 20px;
+  text-align: center;
+}
+
+.summary-card--blue   { border-color: var(--blue-primary); }
+.summary-card--green  { border-color: var(--green-primary); }
+.summary-card--orange { border-color: var(--orange-primary); }
+.summary-card--purple { border-color: var(--purple-primary); }
+
+.summary-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 14px;
+  color: var(--white);
+  font-size: 1.4rem;
+}
+
+.summary-icon--blue   { background: var(--blue-primary); }
+.summary-icon--green  { background: var(--green-primary); }
+.summary-icon--orange { background: var(--orange-primary); }
+.summary-icon--purple { background: var(--purple-primary); }
+
+.summary-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text-dark);
+}
+
+.summary-subtitle {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.summary-divider {
+  border: none;
+  border-top: 1px solid #e3e8f0;
+  margin: 10px 0;
+}
+
+.summary-values {
+  display: flex;
+  justify-content: space-around;
+  margin: 14px 0;
+}
+
+.summary-values .col {
+  text-align: center;
+}
+
+.summary-values .label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+}
+
+.summary-values .value {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.3rem;
+  margin-top: 4px;
+}
+
+.summary-card--blue .value:nth-of-type(2)   { color: var(--blue-primary); }
+.summary-card--green .value:nth-of-type(2)  { color: var(--green-primary); }
+.summary-card--orange .value:nth-of-type(2) { color: var(--orange-primary); }
+.summary-card--purple .value:nth-of-type(2) { color: var(--purple-primary); }
+
+.summary-growth {
+  border-radius: var(--radius-md);
+  padding: 10px;
+  margin-top: 12px;
+  font-family: var(--font-display);
+}
+
+.summary-growth--blue   { background: var(--bg-blue-soft); }
+.summary-growth--green  { background: var(--bg-green-soft); }
+.summary-growth--orange { background: var(--bg-orange-soft); }
+.summary-growth--purple { background: var(--bg-purple-soft); }
+
+.summary-growth .growth-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+}
+
+.summary-growth .growth-value {
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
+.summary-growth--blue .growth-value   { color: var(--blue-primary); }
+.summary-growth--green .growth-value  { color: var(--green-primary); }
+.summary-growth--orange .growth-value { color: var(--orange-primary); }
+.summary-growth--purple .growth-value { color: var(--purple-primary); }
+
+/* ============================================================
+   AREA GRAFIK + KESIMPULAN
+   ============================================================ */
+.charts-section {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  gap: 20px;
+  padding: 0 40px 30px;
+}
+
+.charts-panel {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 24px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.chart-card h4 {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 12px;
+}
+
+.chart-card--blue h4   { color: var(--blue-primary); }
+.chart-card--green h4  { color: var(--green-primary); }
+.chart-card--orange h4 { color: var(--orange-primary); }
+.chart-card--purple h4 { color: var(--purple-primary); }
+
+.bar-chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  height: 180px;
+  border-left: 1px solid #e3e8f0;
+  border-bottom: 1px solid #e3e8f0;
+  position: relative;
+}
+
+.bar {
+  width: 40%;
+  border-radius: 4px 4px 0 0;
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.bar--before { background: var(--blue-bar); }
+.bar--after  { background: var(--green-bar); }
+
+.bar .bar-value {
+  position: absolute;
+  top: -22px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.bar-chart-labels {
+  display: flex;
+  justify-content: space-around;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+.growth-arrow {
+  position: absolute;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--green-primary);
+}
+
+/* --- Panel Kesimpulan Utama --- */
+.conclusion-panel {
+  background: var(--bg-card);
+  border: 2px solid var(--navy-dark);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.conclusion-header {
+  background: var(--navy-dark);
+  color: var(--white);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-align: center;
+  padding: 12px;
+}
+
+.conclusion-body {
+  padding: 18px;
+  font-size: 0.85rem;
+  color: var(--text-dark);
+}
+
+.conclusion-list {
+  list-style: none;
+  margin: 14px 0;
+}
+
+.conclusion-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 0.85rem;
+}
+
+.conclusion-list li::before {
+  content: "\2705"; /* ✅ */
+  flex-shrink: 0;
+}
+
+.conclusion-highlight {
+  color: var(--green-primary);
+  font-weight: 800;
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.dashboard-footer {
+  background: var(--navy-dark);
+  color: var(--white);
+  padding: 20px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.footer-source p {
+  margin: 2px 0;
+  opacity: 0.9;
+}
+
+.footer-quote {
+  font-style: italic;
+  font-weight: 600;
+  text-align: center;
+  flex: 1;
+  min-width: 240px;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 1024px) {
+  .summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .charts-section {
+    grid-template-columns: 1fr;
+  }
+  .charts-panel {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .dashboard-title { font-size: 1.8rem; }
+  .summary-grid { grid-template-columns: 1fr; }
+  .charts-panel { grid-template-columns: 1fr; }
+  .dashboard-footer { flex-direction: column; text-align: center; }
+}
