@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const flashEffect = document.getElementById('flashEffect');
   const gridOverlay = document.getElementById('cameraGrid');
   
-  // UI Buttons
+  // UI Buttons & Controls
   const btnShutter = document.getElementById('btnShutter');
   const btnFlipCamera = document.getElementById('btnFlipCamera');
   const btnTorch = document.getElementById('btnTorch');
@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const galleryBadge = document.getElementById('galleryBadge');
   const galleryThumbImg = document.getElementById('galleryThumbImg');
   const galleryIconFallback = document.getElementById('galleryIconFallback');
+  const lensSelectorBar = document.getElementById('lensSelectorBar');
 
   // Geotag Text Elements
   const geoHeader = document.getElementById('geoHeader');
@@ -97,11 +98,47 @@ document.addEventListener('DOMContentLoaded', async () => {
     geoNoteText.textContent = `Note : ${data.note}`;
   });
 
+  // iOS Safari invalidateSize fix when video plays or window resizes
+  videoEl.addEventListener('loadeddata', () => {
+    setTimeout(() => {
+      if (geotag.leafletMap) geotag.leafletMap.invalidateSize();
+    }, 300);
+  });
+  window.addEventListener('resize', () => {
+    if (geotag.leafletMap) geotag.leafletMap.invalidateSize();
+  });
+  window.addEventListener('orientationchange', () => {
+    setTimeout(() => {
+      if (geotag.leafletMap) geotag.leafletMap.invalidateSize();
+    }, 400);
+  });
+
   // Update Drive Badge Status
   updateDriveStatusUI();
 
   // Load Gallery Thumbnail & Count
   updateGalleryBadge();
+
+  // ==========================================================================
+  // Lens Switcher (0.5x, 1x, 2x, 3x)
+  // ==========================================================================
+  if (lensSelectorBar) {
+    const lensBtns = lensSelectorBar.querySelectorAll('.lens-btn');
+    lensBtns.forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const zoomVal = parseFloat(btn.getAttribute('data-zoom'));
+        lensBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const success = await camera.setZoom(zoomVal);
+        if (success) {
+          showToast(`Lensa ${zoomVal}x`, 'search');
+        } else {
+          showToast(`Lensa ${zoomVal}x (Zoom Digital)`, 'search');
+        }
+      });
+    });
+  }
 
   // ==========================================================================
   // Shutter Action (Take Photo)

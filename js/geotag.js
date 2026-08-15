@@ -28,7 +28,6 @@ class GeotagManager {
   initLeafletMap(containerId) {
     if (this.leafletMap) return;
 
-    // Default center Jakarta if no location yet
     const defaultLat = -6.2088;
     const defaultLng = 106.8456;
 
@@ -58,6 +57,13 @@ class GeotagManager {
     });
 
     this.marker = L.marker([defaultLat, defaultLng], { icon: customIcon }).addTo(this.leafletMap);
+
+    // Force Leaflet invalidateSize for iOS Safari initial render
+    setTimeout(() => {
+      if (this.leafletMap) {
+        this.leafletMap.invalidateSize();
+      }
+    }, 400);
   }
 
   startTracking() {
@@ -72,21 +78,18 @@ class GeotagManager {
       maximumAge: 3000
     };
 
-    // First quick position
     navigator.geolocation.getCurrentPosition(
       (pos) => this.handlePositionUpdate(pos),
       (err) => this.handlePositionError(err),
       options
     );
 
-    // Continuous watch
     this.watchId = navigator.geolocation.watchPosition(
       (pos) => this.handlePositionUpdate(pos),
       (err) => this.handlePositionError(err),
       options
     );
 
-    // Timer to update live date/time string every second
     setInterval(() => {
       this.updateFormattedTimestamp();
       this.triggerCallbacks();
@@ -116,11 +119,11 @@ class GeotagManager {
       if (this.marker) {
         this.marker.setLatLng([lat, lng]);
       }
+      this.leafletMap.invalidateSize();
     }
 
     this.updateFormattedTimestamp();
 
-    // Reverse geocode if 5 seconds passed since last geocode to respect API rate limits
     const now = Date.now();
     if (now - this.lastGeocodeTime > 5000 && !this.isReverseGeocoding) {
       this.lastGeocodeTime = now;
@@ -150,17 +153,15 @@ class GeotagManager {
     const minutes = String(now.getMinutes()).padStart(2, '0');
     const ampm = hours >= 12 ? 'PM' : 'AM';
     hours = hours % 12;
-    hours = hours ? hours : 12; // hour '0' should be '12'
+    hours = hours ? hours : 12;
     const hoursStr = String(hours).padStart(2, '0');
 
-    // Timezone string (e.g., GMT+07:00)
     const tzo = -now.getTimezoneOffset();
     const dif = tzo >= 0 ? '+' : '-';
     const tzHours = String(Math.floor(Math.abs(tzo) / 60)).padStart(2, '0');
     const tzMins = String(Math.abs(tzo) % 60).padStart(2, '0');
     const timezoneStr = `GMT${dif}${tzHours}:${tzMins}`;
 
-    // Format: Tuesday, 11/08/2026 10:18 AM GMT+07:00
     this.locationData.timestampStr = `${dayName}, ${dayStr}/${monthStr}/${yearStr} ${hoursStr}:${minutes} ${ampm} ${timezoneStr}`;
   }
 
@@ -189,11 +190,9 @@ class GeotagManager {
           const city = addr.city || addr.town || addr.city_district || addr.county || addr.municipality || 'Jakarta';
           const state = addr.state || addr.region || '';
           
-          // Header: e.g. Central Jakarta, Jakarta, Indonesia 🇮🇩
           const headerParts = [city, state, country].filter(p => p.length > 0);
           this.locationData.header = `${headerParts.join(', ')} ${flag}`;
 
-          // Address lines
           const road = addr.road || addr.pedestrian || addr.suburb || '';
           const subdistrict = addr.village || addr.suburb || addr.neighbourhood || '';
           const district = addr.city_district || addr.district || addr.county || '';

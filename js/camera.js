@@ -1,5 +1,5 @@
 /**
- * WebRTC Camera Controller
+ * WebRTC Camera Controller with Multi-Lens & Zoom Support
  */
 class GeotagCamera {
   constructor(videoElement) {
@@ -10,20 +10,42 @@ class GeotagCamera {
     this.track = null;
     this.capabilities = {};
     this.currentResolution = { width: 1920, height: 1080 };
+    this.availableVideoDevices = [];
+    this.selectedDeviceId = null;
+    this.currentZoom = 1;
   }
 
-  async start() {
+  async getDevices() {
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      this.availableVideoDevices = devices.filter(d => d.kind === 'videoinput');
+      return this.availableVideoDevices;
+    } catch (e) {
+      console.warn('Could not enumerate video devices:', e);
+      return [];
+    }
+  }
+
+  async start(deviceId = null) {
     if (this.stream) {
       this.stop();
     }
 
+    const videoConstraints = {
+      width: { ideal: this.currentResolution.width },
+      height: { ideal: this.currentResolution.height }
+    };
+
+    if (deviceId) {
+      videoConstraints.deviceId = { exact: deviceId };
+      this.selectedDeviceId = deviceId;
+    } else {
+      videoConstraints.facingMode = { ideal: this.facingMode };
+    }
+
     const constraints = {
       audio: false,
-      video: {
-        facingMode: { ideal: this.facingMode },
-        width: { ideal: this.currentResolution.width },
-        height: { ideal: this.currentResolution.height }
-      }
+      video: videoConstraints
     };
 
     try {
@@ -37,10 +59,13 @@ class GeotagCamera {
       }
 
       this.isTorchOn = false;
+
+      // Enumerate devices once stream is active (labels will now be available)
+      await this.getDevices();
+
       return true;
     } catch (err) {
       console.error('Camera initialization failed:', err);
-      // Fallback to basic constraints if high resolution failed
       try {
         this.stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
         this.video.srcObject = this.stream;
@@ -63,7 +88,65 @@ class GeotagCamera {
 
   async toggleCamera() {
     this.facingMode = (this.facingMode === 'environment') ? 'user' : 'environment';
+    this.selectedDeviceId = null;
     return await this.start();
+  }
+
+  async setZoom(zoomValue) {
+    this.currentZoom = zoomValue;
+    if (!this.track) return false;
+
+    // Check hardware zoom capability
+    if (this.capabilities && this.capabilities.zoom) {
+      try {
+        const minZoom = this.capabilities.zoom.min || 1;
+        const maxZoom = this.capabilities.zoom.max || 5;
+        const targetZoom = Math.min(Math.max(zoomValue, minZoom), maxZoom);
+
+        await this.track.applyConstraints({
+          advanced: [{ zoom: targetZoom }]
+        });
+        return true;
+      } catch (e) {
+        console.warn('Hardware zoom constraint failed:', e);
+      }
+    }
+
+    // If deviceId switching is available for ultra-wide / telephoto
+    if (this.availableVideoDevices.length > 1) {
+      let targetDevice = null;
+      const rearDevices = this.availableVideoDevices.filter(d => 
+        !d.label.toLowerCase().includes('front') && 
+        !d.label.toLowerCase().includes('user') &&
+        !d.label.toLowerCase().includes('selfie')
+      );
+
+      if (zoomValue <= 0.6 && rearDevices.length > 1) {
+        // Ultra-wide lens search
+        targetDevice = rearDevices.find(d => 
+          d.label.toLowerCase().includes('ultra') || 
+          d.label.toLowerCase().includes('wide 0') ||
+          d.label.toLowerCase().includes('back 1')
+        );
+      } else if (zoomValue >= 2 && rearDevices.length > 1) {
+        // Telephoto lens search
+        targetDevice = rearDevices.find(d => 
+          d.label.toLowerCase().includes('telephoto') || 
+          d.label.toLowerCase().includes('zoom') ||
+          d.label.toLowerCase().includes('back 2')
+        );
+      } else if (rearDevices.length > 0) {
+        // Main / Wide lens
+        targetDevice = rearDevices[0];
+      }
+
+      if (targetDevice && targetDevice.deviceId !== this.selectedDeviceId) {
+        await this.start(targetDevice.deviceId);
+        return true;
+      }
+    }
+
+    return false;
   }
 
   async toggleTorch() {
@@ -89,7 +172,7 @@ class GeotagCamera {
 
   setResolution(width, height) {
     this.currentResolution = { width, height };
-    return this.start();
+    return this.start(this.selectedDeviceId);
   }
 
   captureFrame() {
