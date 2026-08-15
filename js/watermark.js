@@ -1,6 +1,6 @@
 /**
  * High-DPI Watermark Stamping Engine for Canvas
- * Responsive & Prominent Layout (Scaled 20% smaller for compact elegance)
+ * Multi-Line Text Wrapping & Dynamic Card Expansion
  */
 class GeotagWatermark {
   constructor() {
@@ -24,24 +24,46 @@ class GeotagWatermark {
     ctx.drawImage(cameraCanvas, 0, 0);
 
     const isLandscape = canvas.width >= canvas.height;
-    // Scale factor reduced 20% for compact elegante watermark size
     const maxDim = Math.max(canvas.width, canvas.height);
-    const scale = (maxDim / 1600) * 0.8;
+    const scale = (maxDim / 1600) * 0.82;
 
-    // Overlay Card Dimensions (20% reduced)
+    // Overlay Card Base Dimensions
     const padding = Math.round(20 * scale);
     const cardMarginBottom = Math.round(24 * scale);
     const cardMarginLeft = Math.round(24 * scale);
     
     // Scale Map Thumbnail Size
-    const mapSize = Math.round(isLandscape ? 225 * scale : 190 * scale);
+    const mapSize = Math.round(isLandscape ? 225 * scale : 200 * scale);
 
-    const cardWidth = Math.min(canvas.width - (cardMarginLeft * 2), Math.round((isLandscape ? 1020 : 800) * scale));
-    const cardHeight = mapSize + (padding * 2);
+    const cardWidth = Math.min(canvas.width - (cardMarginLeft * 2), Math.round((isLandscape ? 1080 : 860) * scale));
     const cardX = cardMarginLeft;
+
+    // Calculate dynamic text height required first
+    const maxTextWidth = cardWidth - (mapSize + (padding * 2) + Math.round(22 * scale));
+    
+    // Measure Header Lines
+    ctx.font = `bold ${Math.round(30 * scale)}px "Roboto", "Segoe UI", sans-serif`;
+    const headerLines = this.calculateLines(ctx, locationData.header || 'Location Unknown', maxTextWidth, 2);
+    const headerHeight = headerLines.length * Math.round(38 * scale);
+
+    // Measure Address Line 1 & 2
+    ctx.font = `${Math.round(22 * scale)}px "Roboto", "Segoe UI", sans-serif`;
+    const addr1Lines = locationData.addressLine1 ? this.calculateLines(ctx, locationData.addressLine1, maxTextWidth, 2) : [];
+    const addr1Height = addr1Lines.length * Math.round(28 * scale);
+
+    const addr2Lines = locationData.addressLine2 ? this.calculateLines(ctx, locationData.addressLine2, maxTextWidth, 2) : [];
+    const addr2Height = addr2Lines.length * Math.round(28 * scale);
+
+    // Coords, Timestamp, Note
+    const coordsHeight = Math.round(28 * scale);
+    const timeHeight = Math.round(28 * scale);
+    const noteHeight = Math.round(28 * scale);
+
+    const totalTextHeight = headerHeight + addr1Height + addr2Height + coordsHeight + timeHeight + noteHeight + Math.round(14 * scale);
+    const cardHeight = Math.max(mapSize + (padding * 2), totalTextHeight + (padding * 2));
     const cardY = canvas.height - cardHeight - cardMarginBottom;
 
-    // 2. Draw Dark Semi-Transparent Card Background (Glassmorphic look)
+    // 2. Draw Dark Semi-Transparent Card Background
     ctx.save();
     ctx.fillStyle = 'rgba(0, 0, 0, 0.72)';
     ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
@@ -61,7 +83,6 @@ class GeotagWatermark {
     ctx.closePath();
     ctx.fill();
 
-    // Subtle white border stroke
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
     ctx.lineWidth = Math.round(1.5 * scale);
     ctx.stroke();
@@ -92,7 +113,6 @@ class GeotagWatermark {
       ctx.drawImage(mapCanvas, mapX, mapY, mapSize, mapSize);
       ctx.restore();
 
-      // Border frame around map
       ctx.save();
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
       ctx.lineWidth = Math.round(2 * scale);
@@ -109,9 +129,9 @@ class GeotagWatermark {
     // 4. Draw GPS Map Camera Logo Badge on Top Right of Card
     ctx.save();
     const badgeText = '📷 GPS Map Camera';
-    ctx.font = `600 ${Math.round(18 * scale)}px "Roboto", sans-serif`;
-    const badgeWidth = ctx.measureText(badgeText).width + (20 * scale);
-    const badgeHeight = 28 * scale;
+    ctx.font = `600 ${Math.round(17 * scale)}px "Roboto", sans-serif`;
+    const badgeWidth = ctx.measureText(badgeText).width + (18 * scale);
+    const badgeHeight = Math.round(26 * scale);
     const badgeX = cardX + cardWidth - badgeWidth - padding;
     const badgeY = cardY + padding;
 
@@ -125,57 +145,88 @@ class GeotagWatermark {
 
     ctx.fillStyle = '#FFFFFF';
     ctx.textBaseline = 'middle';
-    ctx.fillText(badgeText, badgeX + (10 * scale), badgeY + (badgeHeight / 2));
+    ctx.fillText(badgeText, badgeX + (9 * scale), badgeY + (badgeHeight / 2));
     ctx.restore();
 
     // 5. Draw Text Information on Right Side of Map
     const textX = mapX + mapSize + Math.round(20 * scale);
-    let textY = mapY + Math.round(10 * scale);
-    const maxTextWidth = cardWidth - (mapSize + (padding * 2) + Math.round(20 * scale));
+    let textY = cardY + padding + Math.round(4 * scale);
 
     ctx.fillStyle = '#FFFFFF';
     ctx.textBaseline = 'top';
 
-    // A. Header Title with Flag Emoji (e.g., Central Jakarta,Jakarta,Indonesia 🇮🇩)
-    ctx.font = `bold ${Math.round(32 * scale)}px "Roboto", "Segoe UI", sans-serif`;
-    const headerText = locationData.header || 'Location Unknown';
-    ctx.fillText(this.truncateText(ctx, headerText, maxTextWidth), textX, textY);
-    textY += Math.round(40 * scale);
+    // A. Header Title (Multi-line wrap up to 2 lines!)
+    ctx.font = `bold ${Math.round(30 * scale)}px "Roboto", "Segoe UI", sans-serif`;
+    headerLines.forEach(line => {
+      ctx.fillText(line, textX, textY);
+      textY += Math.round(36 * scale);
+    });
+    textY += Math.round(4 * scale);
 
     // B. Address Line 1
-    ctx.font = `${Math.round(23 * scale)}px "Roboto", "Segoe UI", sans-serif`;
+    ctx.font = `${Math.round(22 * scale)}px "Roboto", "Segoe UI", sans-serif`;
     ctx.fillStyle = '#E8E8E8';
-    if (locationData.addressLine1) {
-      ctx.fillText(this.truncateText(ctx, locationData.addressLine1, maxTextWidth), textX, textY);
-      textY += Math.round(30 * scale);
-    }
+    addr1Lines.forEach(line => {
+      ctx.fillText(line, textX, textY);
+      textY += Math.round(28 * scale);
+    });
 
     // C. Address Line 2
-    if (locationData.addressLine2) {
-      ctx.fillText(this.truncateText(ctx, locationData.addressLine2, maxTextWidth), textX, textY);
-      textY += Math.round(30 * scale);
-    }
+    addr2Lines.forEach(line => {
+      ctx.fillText(line, textX, textY);
+      textY += Math.round(28 * scale);
+    });
 
     // D. Coordinates (Lat, Long)
-    ctx.font = `600 ${Math.round(23 * scale)}px "Roboto", "Segoe UI", sans-serif`;
+    ctx.font = `600 ${Math.round(22 * scale)}px "Roboto", "Segoe UI", sans-serif`;
     ctx.fillStyle = '#FFFFFF';
     const coordsText = `${locationData.latStr}, ${locationData.lngStr}`;
     ctx.fillText(coordsText, textX, textY);
-    textY += Math.round(30 * scale);
+    textY += Math.round(28 * scale);
 
     // E. Timestamp
-    ctx.font = `${Math.round(22 * scale)}px "Roboto", "Segoe UI", sans-serif`;
+    ctx.font = `${Math.round(21 * scale)}px "Roboto", "Segoe UI", sans-serif`;
     ctx.fillStyle = '#E0E0E0';
     ctx.fillText(locationData.timestampStr, textX, textY);
     textY += Math.round(28 * scale);
 
     // F. Note
-    ctx.font = `italic ${Math.round(22 * scale)}px "Roboto", "Segoe UI", sans-serif`;
+    ctx.font = `italic ${Math.round(21 * scale)}px "Roboto", "Segoe UI", sans-serif`;
     ctx.fillStyle = '#A8C7FA';
     const noteText = `Note : ${locationData.note}`;
     ctx.fillText(this.truncateText(ctx, noteText, maxTextWidth), textX, textY);
 
     return canvas;
+  }
+
+  /**
+   * Helper to split text into lines without harsh truncating
+   */
+  calculateLines(ctx, text, maxWidth, maxLines = 2) {
+    const words = text.split(' ');
+    let line = '';
+    let lines = [];
+
+    for (let n = 0; n < words.length; n++) {
+      const testLine = line + words[n] + ' ';
+      const metrics = ctx.measureText(testLine);
+      if (metrics.width > maxWidth && n > 0) {
+        lines.push(line.trim());
+        line = words[n] + ' ';
+        if (lines.length === maxLines - 1) {
+          const remaining = words.slice(n).join(' ');
+          lines.push(this.truncateText(ctx, remaining, maxWidth));
+          line = '';
+          break;
+        }
+      } else {
+        line = testLine;
+      }
+    }
+    if (line.trim().length > 0 && lines.length < maxLines) {
+      lines.push(line.trim());
+    }
+    return lines;
   }
 
   /**
