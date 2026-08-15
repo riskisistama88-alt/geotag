@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const videoEl = document.getElementById('cameraVideo');
   const flashEffect = document.getElementById('flashEffect');
   const gridOverlay = document.getElementById('cameraGrid');
+  const geotagCard = document.getElementById('geotagCard');
   
   // UI Buttons & Controls
   const btnShutter = document.getElementById('btnShutter');
@@ -13,6 +14,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const btnTorch = document.getElementById('btnTorch');
   const btnGrid = document.getElementById('btnGrid');
   const btnSettings = document.getElementById('btnSettings');
+  const btnToggleOverlay = document.getElementById('btnToggleOverlay');
   const driveStatusBadge = document.getElementById('driveStatusBadge');
   const driveStatusText = document.getElementById('driveStatusText');
   const btnGallery = document.getElementById('btnGallery');
@@ -77,6 +79,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const storage = window.geotagStorage;
 
   let activePreviewPhoto = null;
+  let isLiveOverlayVisible = false;
 
   // 1. Initialize Camera
   try {
@@ -97,6 +100,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     geoTimestamp.textContent = data.timestampStr;
     geoNoteText.textContent = `Note : ${data.note}`;
   });
+
+  // Toggle Live Card Overlay Preview (eye icon)
+  if (btnToggleOverlay) {
+    btnToggleOverlay.addEventListener('click', () => {
+      isLiveOverlayVisible = !isLiveOverlayVisible;
+      if (isLiveOverlayVisible) {
+        geotagCard.classList.add('show');
+        btnToggleOverlay.classList.add('active');
+        btnToggleOverlay.querySelector('.material-symbols-outlined').textContent = 'visibility';
+        showToast('Pratinjau Geotag Aktif', 'visibility');
+        if (geotag.leafletMap) geotag.leafletMap.invalidateSize();
+      } else {
+        geotagCard.classList.remove('show');
+        btnToggleOverlay.classList.remove('active');
+        btnToggleOverlay.querySelector('.material-symbols-outlined').textContent = 'visibility_off';
+        showToast('Tampilan Kamera Bersih', 'visibility_off');
+      }
+    });
+  }
 
   // iOS Safari invalidateSize fix when video plays or window resizes
   videoEl.addEventListener('loadeddata', () => {
@@ -152,7 +174,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       // Capture high-res frame
       const frameCanvas = camera.captureFrame();
 
-      // Apply Geotag Watermark onto canvas
+      // Apply Geotag Watermark onto canvas (Always stamped on captured photo!)
       const watermarkedCanvas = await watermark.applyWatermark(frameCanvas, geotag.locationData);
 
       const dataUrl = watermarkedCanvas.toDataURL('image/jpeg', 0.95);
@@ -176,7 +198,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       updateGalleryBadge();
 
-      showToast('Foto tersimpan di Perangkat!', 'download_done');
+      showToast('Foto tersimpan dengan Watermark Geotag!', 'download_done');
+
+      // Auto open preview modal so user can immediately inspect captured photo geotag
+      openPhotoPreview(photoRecord);
 
       // C. Auto Upload to Google Drive if enabled
       if (drive.isConfigured() && drive.autoUpload) {
