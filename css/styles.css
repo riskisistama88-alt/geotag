@@ -368,6 +368,12 @@ video#cameraVideo {
   letter-spacing: 0.2px;
   text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8);
   padding-right: 70px; /* Reserve space so top-right badge never collides */
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.info-header:hover {
+  opacity: 0.9;
 }
 
 .info-address {
@@ -381,6 +387,12 @@ video#cameraVideo {
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.8);
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.info-address:hover {
+  color: #FFFFFF;
 }
 
 .info-coords, .info-timestamp {

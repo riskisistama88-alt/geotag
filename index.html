@@ -238,25 +238,45 @@
   </div>
 
   <!-- ==========================================================================
-       MODAL 2: Edit Custom Note Dialog
+       MODAL 2: Edit Custom Address & Note Dialog
        ========================================================================== -->
   <div class="modal-backdrop" id="editNoteModal">
-    <div class="md3-dialog" style="max-width: 440px;">
+    <div class="md3-dialog" style="max-width: 480px;">
       <div class="dialog-header">
         <div class="dialog-title">
-          <span class="material-symbols-outlined" style="color: var(--md-sys-color-primary);">edit_note</span>
-          <span>Edit Catatan Geotag</span>
+          <span class="material-symbols-outlined" style="color: var(--md-sys-color-primary);">edit_location_alt</span>
+          <span>Edit Alamat & Catatan</span>
         </div>
+        <button class="icon-btn" id="btnCloseEditModal" style="width: 36px; height: 36px;">
+          <span class="material-symbols-outlined">close</span>
+        </button>
       </div>
       <div class="dialog-content">
+        <div class="md3-text-field">
+          <label for="inputCustomHeader">Judul / Header Wilayah</label>
+          <input type="text" id="inputCustomHeader" class="md3-input" placeholder="Kabupaten Rote Ndao, Nusa Tenggara Timur, Indonesia 🇮🇩">
+        </div>
+        <div class="md3-text-field">
+          <label for="inputCustomAddress1">Baris Alamat 1 (Jalan / Desa / Kecamatan)</label>
+          <input type="text" id="inputCustomAddress1" class="md3-input" placeholder="Desa Londalusi, Rote Timur, Kabupaten Rote Ndao">
+        </div>
+        <div class="md3-text-field">
+          <label for="inputCustomAddress2">Baris Alamat 2 (Provinsi, Kode Pos, Negara)</label>
+          <input type="text" id="inputCustomAddress2" class="md3-input" placeholder="Nusa Tenggara Timur 85974, Indonesia">
+        </div>
         <div class="md3-text-field">
           <label for="inputCustomNote">Teks Catatan (Watermark Note)</label>
           <input type="text" id="inputCustomNote" class="md3-input" placeholder="Captured by GPS Map Camera" value="Captured by GPS Map Camera">
         </div>
       </div>
-      <div class="dialog-actions">
-        <button class="md3-btn md3-btn-text" id="btnCancelNote">Batal</button>
-        <button class="md3-btn md3-btn-filled" id="btnSaveNote">Simpan Teks</button>
+      <div class="dialog-actions" style="justify-content: space-between;">
+        <button class="md3-btn md3-btn-outlined" id="btnResetGPS" style="color: var(--md-sys-color-error); border-color: rgba(242, 184, 181, 0.4);" title="Kembalikan ke deteksi otomatis live GPS">
+          <span class="material-symbols-outlined">restart_alt</span> Reset GPS
+        </button>
+        <div style="display: flex; gap: 8px;">
+          <button class="md3-btn md3-btn-text" id="btnCancelNote">Batal</button>
+          <button class="md3-btn md3-btn-filled" id="btnSaveNote">Simpan</button>
+        </div>
       </div>
     </div>
   </div>

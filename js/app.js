@@ -47,7 +47,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   const btnCopyScript = document.getElementById('btnCopyScript');
 
   const editNoteModal = document.getElementById('editNoteModal');
+  const btnCloseEditModal = document.getElementById('btnCloseEditModal');
+  const inputCustomHeader = document.getElementById('inputCustomHeader');
+  const inputCustomAddress1 = document.getElementById('inputCustomAddress1');
+  const inputCustomAddress2 = document.getElementById('inputCustomAddress2');
   const inputCustomNote = document.getElementById('inputCustomNote');
+  const btnResetGPS = document.getElementById('btnResetGPS');
   const btnCancelNote = document.getElementById('btnCancelNote');
   const btnSaveNote = document.getElementById('btnSaveNote');
 
@@ -324,19 +329,44 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // ==========================================================================
-  // Edit Note Modal
+  // Edit Geotag Address & Note Modal
   // ==========================================================================
-  geoNoteBtn.addEventListener('click', () => {
-    inputCustomNote.value = geotag.locationData.note;
+  function openEditGeotagModal() {
+    inputCustomHeader.value = geotag.locationData.header || '';
+    inputCustomAddress1.value = geotag.locationData.addressLine1 || '';
+    inputCustomAddress2.value = geotag.locationData.addressLine2 || '';
+    inputCustomNote.value = geotag.locationData.note || 'Captured by GPS Map Camera';
     editNoteModal.classList.add('active');
+  }
+
+  geoNoteBtn.addEventListener('click', openEditGeotagModal);
+  geoHeader.addEventListener('click', openEditGeotagModal);
+  geoAddress1.addEventListener('click', openEditGeotagModal);
+  geoAddress2.addEventListener('click', openEditGeotagModal);
+
+  if (btnCloseEditModal) {
+    btnCloseEditModal.addEventListener('click', () => editNoteModal.classList.remove('active'));
+  }
+  btnCancelNote.addEventListener('click', () => editNoteModal.classList.remove('active'));
+
+  btnSaveNote.addEventListener('click', () => {
+    geotag.setManualAddress({
+      header: inputCustomHeader.value.trim(),
+      addressLine1: inputCustomAddress1.value.trim(),
+      addressLine2: inputCustomAddress2.value.trim(),
+      note: inputCustomNote.value.trim()
+    });
+    editNoteModal.classList.remove('active');
+    showToast('Alamat & Catatan Geotag disimpan!', 'check_circle');
   });
 
-  btnCancelNote.addEventListener('click', () => editNoteModal.classList.remove('active'));
-  btnSaveNote.addEventListener('click', () => {
-    geotag.setNote(inputCustomNote.value);
-    editNoteModal.classList.remove('active');
-    showToast('Catatan diperbarui!', 'edit');
-  });
+  if (btnResetGPS) {
+    btnResetGPS.addEventListener('click', () => {
+      geotag.resetManualOverride();
+      editNoteModal.classList.remove('active');
+      showToast('Reset ke deteksi live GPS!', 'restart_alt');
+    });
+  }
 
   // ==========================================================================
   // Gallery & Preview Modal
