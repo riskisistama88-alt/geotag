@@ -44,6 +44,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const inputWebhookUrl = document.getElementById('inputWebhookUrl');
   const inputClientId = document.getElementById('inputClientId');
   const checkAutoUpload = document.getElementById('checkAutoUpload');
+  const checkFrontMirror = document.getElementById('checkFrontMirror');
   const btnCopyScript = document.getElementById('btnCopyScript');
 
   const editNoteModal = document.getElementById('editNoteModal');
@@ -273,6 +274,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     inputWebhookUrl.value = drive.webhookUrl;
     inputClientId.value = drive.clientId;
     checkAutoUpload.checked = drive.autoUpload;
+    if (checkFrontMirror) checkFrontMirror.checked = camera.mirrorFront;
 
     if (drive.mode === 'oauth') {
       switchDriveTab('oauth');
@@ -281,6 +283,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     driveSettingsModal.classList.add('active');
+  }
+
+  if (checkFrontMirror) {
+    checkFrontMirror.addEventListener('change', () => {
+      camera.setFrontMirror(checkFrontMirror.checked);
+      showToast(camera.mirrorFront ? 'Mirror Kamera Depan: Aktif' : 'Mirror Kamera Depan: Nonaktif (Normal)', 'cameraswitch');
+    });
   }
 
   btnCloseDriveModal.addEventListener('click', () => driveSettingsModal.classList.remove('active'));
@@ -306,9 +315,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   btnSaveDrive.addEventListener('click', () => {
     const mode = tabWebhook.classList.contains('active') ? 'webhook' : 'oauth';
     drive.saveSettings(mode, inputWebhookUrl.value, inputClientId.value, checkAutoUpload.checked);
+    if (checkFrontMirror) camera.setFrontMirror(checkFrontMirror.checked);
     updateDriveStatusUI();
     driveSettingsModal.classList.remove('active');
-    showToast('Pengaturan Google Drive disimpan!', 'check_circle');
+    showToast('Pengaturan berhasil disimpan!', 'check_circle');
   });
 
   btnCopyScript.addEventListener('click', () => {

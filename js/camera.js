@@ -13,6 +13,8 @@ class GeotagCamera {
     this.availableVideoDevices = [];
     this.selectedDeviceId = null;
     this.currentZoom = 1;
+    const savedMirror = localStorage.getItem('geotag_front_mirror');
+    this.mirrorFront = savedMirror !== null ? savedMirror === 'true' : false; // Default: false (tidak mirror)
   }
 
   async getDevices() {
@@ -60,6 +62,9 @@ class GeotagCamera {
 
       this.isTorchOn = false;
 
+      // Update mirror styling on video element
+      this.updateVideoMirrorClass();
+
       // Enumerate devices once stream is active (labels will now be available)
       await this.getDevices();
 
@@ -71,11 +76,28 @@ class GeotagCamera {
         this.video.srcObject = this.stream;
         await this.video.play();
         this.track = this.stream.getVideoTracks()[0];
+        this.updateVideoMirrorClass();
         return true;
       } catch (fallbackErr) {
         throw new Error('Tidak dapat mengakses kamera. Pastikan izin kamera telah diberikan.');
       }
     }
+  }
+
+  updateVideoMirrorClass() {
+    if (this.video) {
+      if (this.facingMode === 'user' && this.mirrorFront) {
+        this.video.classList.add('mirrored');
+      } else {
+        this.video.classList.remove('mirrored');
+      }
+    }
+  }
+
+  setFrontMirror(isMirror) {
+    this.mirrorFront = !!isMirror;
+    localStorage.setItem('geotag_front_mirror', this.mirrorFront ? 'true' : 'false');
+    this.updateVideoMirrorClass();
   }
 
   stop() {
@@ -186,8 +208,8 @@ class GeotagCamera {
 
     const ctx = canvas.getContext('2d');
     
-    // Flip horizontally if front camera
-    if (this.facingMode === 'user') {
+    // Flip horizontally only if front camera AND mirrorFront is enabled
+    if (this.facingMode === 'user' && this.mirrorFront) {
       ctx.translate(canvas.width, 0);
       ctx.scale(-1, 1);
     }
